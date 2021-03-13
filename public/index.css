@@ -1,0 +1,18 @@
+.Calculadora {
+  border: 1px solid black;
+  padding: 8px;
+  background: cornflowerblue;
+}
+.pantalla {
+  border: 1px solid black;
+  background-color: #eee;
+  width: 100px;
+  min-height: 20px;
+  text-align: right;
+}
+
+body {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+}

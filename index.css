@@ -1,0 +1,14 @@
+#Calculadora {
+    /* background-color: blue; */
+    justify-content: center;
+  }
+  #pantalla {
+    border: 1px solid black;
+    background-color: #eee;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
