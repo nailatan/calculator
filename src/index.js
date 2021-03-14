@@ -1,35 +1,60 @@
-let operacion= [];
+let operation= [];
 let operacionesAritmeticas = ["+", "-", "*", "/"]; 
 let equalOperation = ["="];
-let clearOperation = ["c"];
+let clearSigne = ["c"];
+let clearLastDigit = ["<="];
+let changeSigne = ["+/-"];
 let pantalla;
 
 let someOne  = (valores) =>((valor) => valores.some( (item) => { return item===valor}))
 let isOperation =  (ope) => someOne(operacionesAritmeticas)(ope);
 let isEqual = (ope)  => someOne(equalOperation)(ope);
-let isClear = (ope) => someOne(clearOperation)(ope);
-let clearPantalla = () => pantalla.innerHTML = "";
-let writePantalla = (value) => pantalla.innerHTML += value;
-let getPantalla = () =>pantalla.innerHTML;
+let isClear = (ope) => someOne(clearSigne)(ope);
+let isClearLastSigne = (ope) => someOne(clearLastDigit)(ope); 
+let isChangeSigne = (ope) => someOne(changeSigne)(ope); 
+let clearScreen = () => pantalla.innerHTML = "";
+let writeIntoScreenAndClean = (value) =>{clearScreen(); writeIntoScreen(value);}
+let writeIntoScreen = (value) => pantalla.innerHTML += value;
+let getScreenValue = () =>pantalla.innerHTML;
 let makeOperation = (a,b,c) => eval(`${a} ${b} ${c}`);
+let clearAll = () => {operation=[]; clearScreen();}
+let clearOperation = () => {operation = [];}
+let clearLastValue = () => {
+    let value = Array.from(getScreenValue());
+    value.pop();
+     return value.join('');  
+    }
+let doIntermediateOperation = () => {
+    let resultado = makeOperation(...operation);
+    clearOperation();
+    operation.push(resultado);
+}
 
 function onClickButtonEvent(e) {
     if (!isNaN(this.value)) {
-       writePantalla(this.value)
+       writeIntoScreen(this.value)
     }
     else if (isOperation(this.value)) {
-            operacion.push(getPantalla(), this.value);
-            clearPantalla();
+        operation.push(getScreenValue());
+        if (operation.length ===3) {
+            doIntermediateOperation();
+        }
+        operation.push(this.value);
+        clearScreen();
     }
     else if (isEqual(this.value)) {
-        operacion.push(getPantalla());
-        clearPantalla();
-        writePantalla(makeOperation(...operacion));
-        operacion = [];
+        operation.push(getScreenValue());
+        writeIntoScreenAndClean(makeOperation(...operation));
+        clearOperation();
     }
     else if (isClear(this.value)) {
-        operacion = []
-        clearPantalla();
+        clearAll();
+    }
+    else if (isClearLastSigne(this.value)) {        
+        writeIntoScreenAndClean(clearLastValue());
+    }
+    else if (isChangeSigne(this.value)) {   
+        writeIntoScreenAndClean(makeOperation(getScreenValue(), "*", -1));
     }
 }
 
