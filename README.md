@@ -1,0 +1,2 @@
+- In the WithJavascript directory, there is a calculator version using only Javascript.
+- In the WithReact directory, there is a tag "ClassComponent". Is a version with react class components
