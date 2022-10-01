@@ -1,119 +1,113 @@
-import { Component } from "react";
+import { Component, useEffect, useState } from "react";
 import "./Calculator.css";
 
-class Screen extends Component {
-  render() {
-    return <div className="pantalla">{this.props.value}</div>;
-  }
+function Screen(props) {
+  return <div className="pantalla">{props.value}</div>;
 }
 
-class Key extends Component {
-  constructor(props) {
-    super(props);
-    this.value = props.value;
-    this.onClick = this.onClick.bind(this);
-  }
-  render() {
-    return <input type="button" value={this.value} onClick={this.onClick} />;
-  }
-
-  onClick(event) {
-    this.props.onKeyClick(event.target);
-  }
+function Key(props) {
+  const onClick = (event) => {
+    return props.onKeyClick(event.target);
+  };
+  return <input type="button" value={props.value} onClick={onClick} />;
 }
 
-class Calculator extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { operation: "" };
-    this.onClick = this.onClick.bind(this);
-    this.operacionesAritmeticas = ["+", "-", "*", "/"];
-    this.equalOperation = ["="];
-    this.clearSigne = ["c"];
-    this.changeSigne = ["+/-"];
-    this.clearLastDigit = ["<="];
-  }
+function Calculator(props) {
+  const [operation, setOperation] = useState("");
+  const [value, setValue] = useState("");
+  const [allValues, setAllValues] = useState([]);
+  const operacionesAritmeticas = ["+", "-", "*", "/"];
+  const equalOperation = ["="];
+  const clearSigne = ["c"];
+  const changeSigne = ["+/-"];
+  const clearLastDigit = ["<="];
 
-  someOne = (valores) => (valor) => {
+  const someOne = (valores) => (valor) => {
     return valores.some((item) => {
       return item === valor;
     });
   };
+  const isClear = (ope) => someOne(clearSigne)(ope);
+  const isOperation = (ope) => someOne(operacionesAritmeticas)(ope);
+  const isEqual = (ope) => someOne(equalOperation)(ope);
+  const isClearLastSigne = (ope) => someOne(clearLastDigit)(ope);
+  const isChangeSigne = (ope) => someOne(changeSigne)(ope);
 
-  isClear = (ope) => this.someOne(this.clearSigne)(ope);
-  isOperation = (ope) => this.someOne(this.operacionesAritmeticas)(ope);
-  isEqual = (ope) => this.someOne(this.equalOperation)(ope);
-  isClearLastSigne = (ope) => this.someOne(this.clearLastDigit)(ope);
-  isChangeSigne = (ope) => this.someOne(this.changeSigne)(ope);
+  useEffect(
+    (prev) => {
+      if (!isNaN(value) || isOperation(value)) {
+        setOperation((prev) => {
+          return prev + value;
+        });
+      } else if (isEqual(value)) {
+        setOperation((prev) => eval(prev));
+      } else if (isClear(value)) {
+        setOperation("");
+      } else if (isClearLastSigne(value)) {
+        setOperation((prev) => {
+          let value = Array.from(prev);
+          value.pop();
+          value.join("");
+          return value;
+        });
+      } else if (isChangeSigne(value)) {
+        setOperation((prev) => {
+          let val = `${prev}*-1`;
+          return eval(val);
+        });
+      }
+    },
+    [allValues, value]
+  );
 
-  onClick = (event) => {
+  const onClick = (event) => {
     event.preventDefault;
-    console.log(event.value);
-    if (!isNaN(event.value) || this.isOperation(event.value)) {
-      this.setState((prev) => {
-        return { operation: prev.operation + event.value };
-      });
-    } else if (this.isEqual(event.value)) {
-      this.setState((prev) => {
-        return { operation: eval(prev.operation) };
-      });
-    } else if (this.isClear(event.value)) {
-      this.setState((prev) => {
-        return { operation: "" };
-      });
-    } else if (this.isClearLastSigne(event.value)) {
-      this.setState((prev) => {
-        let value = Array.from(prev.operation);
-        value.pop();
-        value.join("");
-        return { operation: value };
-      });
-    } else if (this.isChangeSigne(event.value)) {
-      this.setState((prev) => {
-        let val = `${prev.operation}*-1`;
-        return { operation: eval(val) };
-      });
-    }
+    setValue(event.value);
+    setAllValues((prev) => {
+      const newAllValues = [...prev];
+      newAllValues.push(event.value);
+      return newAllValues;
+    });
+    //setOperation((prev) => prev + event.value);
   };
-  render() {
-    return (
-      <div className="Calculadora">
-        <Screen value={this.state.operation} />
-        <div className="botones">
-          <p>
-            <Key value="c" onKeyClick={this.onClick} />
-            <Key value="<=" onKeyClick={this.onClick} />
-          </p>
-        </div>
-        <div className="botones">
-          <p>
-            <Key value="7" onKeyClick={this.onClick} />
-            <Key value="8" onKeyClick={this.onClick} />
-            <Key value="9" onKeyClick={this.onClick} />
-            <Key value="/" onKeyClick={this.onClick} />
-          </p>
-          <p>
-            <Key value="4" onKeyClick={this.onClick} />
-            <Key value="5" onKeyClick={this.onClick} />
-            <Key value="6" onKeyClick={this.onClick} />
-            <Key value="*" onKeyClick={this.onClick} />
-          </p>
-          <p>
-            <Key value="1" onKeyClick={this.onClick} />
-            <Key value="2" onKeyClick={this.onClick} />
-            <Key value="3" onKeyClick={this.onClick} />
-            <Key value="-" onKeyClick={this.onClick} />
-          </p>
-          <p>
-            <Key value="+/-" onKeyClick={this.onClick} />
-            <Key value="0" onKeyClick={this.onClick} />
-            <Key value="+" onKeyClick={this.onClick} />
-            <Key value="=" onKeyClick={this.onClick} />
-          </p>
-        </div>
+
+  return (
+    <div className="Calculadora">
+      <Screen value={operation} />
+      <div className="botones">
+        <p>
+          <Key value="c" onKeyClick={onClick} />
+          <Key value="<=" onKeyClick={onClick} />
+        </p>
       </div>
-    );
-  }
+      <div className="botones">
+        <p>
+          <Key value="7" onKeyClick={onClick} />
+          <Key value="8" onKeyClick={onClick} />
+          <Key value="9" onKeyClick={onClick} />
+          <Key value="/" onKeyClick={onClick} />
+        </p>
+        <p>
+          <Key value="4" onKeyClick={onClick} />
+          <Key value="5" onKeyClick={onClick} />
+          <Key value="6" onKeyClick={onClick} />
+          <Key value="*" onKeyClick={onClick} />
+        </p>
+        <p>
+          <Key value="1" onKeyClick={onClick} />
+          <Key value="2" onKeyClick={onClick} />
+          <Key value="3" onKeyClick={onClick} />
+          <Key value="-" onKeyClick={onClick} />
+        </p>
+        <p>
+          <Key value="+/-" onKeyClick={onClick} />
+          <Key value="0" onKeyClick={onClick} />
+          <Key value="+" onKeyClick={onClick} />
+          <Key value="=" onKeyClick={onClick} />
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default Calculator;
